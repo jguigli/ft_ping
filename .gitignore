@@ -1,0 +1,4 @@
+*.o
+ft_ping
+build/
+libft/libft.a
