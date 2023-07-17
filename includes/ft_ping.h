@@ -22,7 +22,10 @@
 /* Définition des constantes */
 
 # define PROGRAM "ft_ping"
-# define BUFFER_SIZE 42 /* Struct ethhdr + struct arphdr + 6 + 4 + 6 + 4 */
+
+/* Message erreur */
+# define HOST_OP "Missing host operand"
+# define PING_HELP "Try 'ping -?' for more information"
 
 /* Variable Global */
 
@@ -30,9 +33,17 @@ extern int sockfd;
 
 /* Déclaration des structures */
 
-
+typedef struct s_main
+{
+	char	*adress;
+	int		verbose;
+} t_main;
 
 /* Prototype des fonctions */
+
+int handleErrorInput(int argc, char **argv, t_main *main);
+void handleCtrlC(int sig);
+int ft_ping(int argc, char **argv);
 
 
 

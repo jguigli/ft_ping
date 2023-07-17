@@ -1,5 +1,8 @@
 SOURCES_DIR = source/
-SOURCES := $(wildcard $(SOURCES_DIR)*.c)
+SOURCES = $(SOURCES_DIR)main.c \
+			$(SOURCES_DIR)input.c \
+			$(SOURCES_DIR)ft_ping.c \
+			$(SOURCES_DIR)signal.c \
 
 BONUS_FILE = \
 
@@ -46,7 +49,7 @@ all:				$(NAME)
 -include $(DEP)
 
 $(NAME):			$(LIBFT) $(OBJECTS) $(HEADER)
-					@echo "[$(NAME)] : Creating ft_malcolm ...\t\t\t\c"
+					@echo "[$(NAME)] : Creating $(NAME) ...\t\t\t\c"
 					@$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT) -o $(NAME)
 					@echo "DONE"
 
