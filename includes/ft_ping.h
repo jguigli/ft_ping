@@ -13,8 +13,11 @@
 # include <unistd.h>
 # include <sys/socket.h>
 # include <sys/types.h>
+# include <netinet/ip.h>
+# include <netinet/ip_icmp.h>
 # include <netdb.h>
 # include <string.h>
+# include <errno.h>
 
 # include "../libft/libft.h"
 
@@ -22,6 +25,7 @@
 /* Définition des constantes */
 
 # define PROGRAM "ft_ping"
+# define PACKET_SIZE 64 // taille paquet ICMP
 
 /* Message erreur */
 # define HOST_OP "Missing host operand"
@@ -35,13 +39,16 @@ extern int sockfd;
 
 typedef struct s_main
 {
-	char	*adress;
-	int		verbose;
+	char			*address; // nom du host ou adresse
+	char			newAddress[16]; // adresse ip finale
+	struct in_addr 	s_address; // adresse ip apres inet_pton
+	int				verbose; // option -v
+	char			packet[PACKET_SIZE];
 } t_main;
 
 /* Prototype des fonctions */
 
-int handleErrorInput(int argc, char **argv, t_main *main);
+int handleInput(int argc, char **argv, t_main *main);
 void handleCtrlC(int sig);
 int ft_ping(int argc, char **argv);
 
