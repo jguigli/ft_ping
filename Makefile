@@ -3,6 +3,8 @@ SOURCES = $(SOURCES_DIR)main.c \
 			$(SOURCES_DIR)input.c \
 			$(SOURCES_DIR)ft_ping.c \
 			$(SOURCES_DIR)signal.c \
+			$(SOURCES_DIR)send.c \
+			$(SOURCES_DIR)receive.c \
 
 BONUS_FILE = \
 

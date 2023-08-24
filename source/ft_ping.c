@@ -4,19 +4,19 @@ int setData(t_main *main, char **argv)
 {
 	(void)main;
 	(void)argv;
-	int on;
+	// int on;
 
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0)
+    if ((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0)
     {
         fprintf(stderr, "%s: socket failed: %s\n", PROGRAM, strerror(errno));
         return -1;
     }
 
-	if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0) // PAS SUR 
-    {
-        perror("setsockopt() for IP_HDRINCL error");
-        exit(EXIT_FAILURE);
-    }
+	// if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0) // PAS SUR 
+    // {
+    //     perror("setsockopt() for IP_HDRINCL error");
+    //     exit(EXIT_FAILURE);
+    // }
 
     return 0;
 }
@@ -33,7 +33,9 @@ int ft_ping(int argc, char **argv)
 
 	while (1)
 	{
-		
+		sendData(&main);
+		receiveData(&main);
+		usleep(1000000); // Changer la valeur
 	}
 	
 	return 0;

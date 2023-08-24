@@ -25,7 +25,7 @@
 /* Définition des constantes */
 
 # define PROGRAM "ft_ping"
-# define PACKET_SIZE 64 // taille paquet ICMP
+# define PACKET_SIZE 64 // taille paquet IP HDR + ICMP
 
 /* Message erreur */
 # define HOST_OP "Missing host operand"
@@ -43,7 +43,11 @@ typedef struct s_main
 	char			newAddress[16]; // adresse ip finale
 	struct in_addr 	s_address; // adresse ip apres inet_pton
 	int				verbose; // option -v
-	char			packet[PACKET_SIZE];
+	char			packet[IP_MAXPACKET]; // paquet d'emvoi
+	int				packet_t; // nonmbre paquet transmis
+	int				packet_r; // nonmbre paquet recu
+	int				ttl; // Changer le type time to live
+	int				time; // Changer le type temps reception apres envoi
 } t_main;
 
 /* Prototype des fonctions */
@@ -51,6 +55,8 @@ typedef struct s_main
 int handleInput(int argc, char **argv, t_main *main);
 void handleCtrlC(int sig);
 int ft_ping(int argc, char **argv);
+int sendData(t_main *main);
+int receiveData(t_main *main);
 
 
 

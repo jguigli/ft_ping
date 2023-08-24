@@ -53,8 +53,6 @@ int checkOption(int argc, char **argv, t_main *main)
 
 int		checkHostAdress(t_main *main)
 {
-	printf("Adresse = %s\n", main->address);
-	printf("Verbose = %d\n", main->verbose);
 	if (inet_pton(AF_INET, main->address, &main->s_address) == 0)
 	{
 		struct addrinfo hints, *result;
@@ -80,15 +78,19 @@ int		checkHostAdress(t_main *main)
 			{
 				struct sockaddr_in* ipv4_addr = (struct sockaddr_in*)rp->ai_addr;
 				addr = &(ipv4_addr->sin_addr);
+				inet_ntop(rp->ai_family, addr, ip_str, sizeof(ip_str));
+				ft_strlcpy(main->newAddress, ip_str, ft_strlen(ip_str) + 1);
+				inet_pton(AF_INET, main->newAddress, &main->s_address);
+        		printf("Adresse IP trouvée: %s\n", ip_str);
+				freeaddrinfo(result);
+				return 0;
         	}
-			inet_ntop(rp->ai_family, addr, ip_str, sizeof(ip_str));
-        	printf("Adresse IP trouvée: %s\n", ip_str);
 		}
 		freeaddrinfo(result);
-
 		fprintf(stderr, "%s: unknown host\n", PROGRAM);
 		return -1;
 	}
+	ft_strlcpy(main->newAddress, main->address, ft_strlen(main->address) + 1);
 	return 0;
 }
 
@@ -100,8 +102,6 @@ int handleInput(int argc, char **argv, t_main *main)
 		fprintf(stderr, "%s\n", PING_HELP);
         return -1;
     }
-
-	// checkMissingByte()
 
 	if (checkOption(argc, argv, main))
 		return -1;
