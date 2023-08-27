@@ -14,25 +14,22 @@ printf and its family.
 
 MAN PING :
 http://www.man-linux-magique.net/man8/ping.html  
+https://www.geeksforgeeks.org/ping-in-c/  
 
 La commande ping requiert  la capacité CAP_NET_RAWIO  pour pouvoir être exécutée. Elle peut être utilisée via set-uid root. 
 
+TODO :
 
-Logique de la fonction PING :
+- resolving dns a gerer (voir sujet)
+- reception d'un 999999 ms en time parfois
+- faire mode verbeux
+- Gerer la bonne address pour host unreachable (c a d mon adresse)
+- le vrai PING continue a envoye des paquets si il ne recoit pas de paquets REPLY (ce qui est pas notre cas)
 
-parser les inputs
-gerer 192.1 = 192.0.0.1
-si adresse/host -> getaddrinfo ou getnameinfo
-getpid() pour identifier le process qui envoi
-creation du paquet ICMP
+JSP :
+- Rajouter le timestamp dans le packet ????
+- check le bon ordre dans seq (wireshark)
 
-boucle infini :
-envoi du paquet ICMP Echo Request
-check des erreurs sur l'envoi
-attente du paquet reponse ICMP Echo reply
-timestamp a la reception
-verification du bon paquet retourne
-affichage des infos recu
-check des erreurs sur la reception
-
-si ctrl/-c fin de la boucle et affichage des infos finals
+OK :
+- Gerer la sortie avec signal si possible
+- unknown host 1.

@@ -61,30 +61,27 @@ int		checkHostAdress(t_main *main)
 		hints.ai_socktype = SOCK_DGRAM; // Type de socket : SOCK_STREAM pour TCP
 
 		int status = getaddrinfo(main->address, NULL, &hints, &result);
-		if (status != 0)
+		if (status == 0)
 		{
-			fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-			return -1;
-		}
-
-		// Parcourez les résultats pour obtenir les adresses IP
-		struct addrinfo* rp;
-		for (rp = result; rp != NULL; rp = rp->ai_next)
-		{
-			void* addr;
-        	char ip_str[INET_ADDRSTRLEN];
-			// Utilisez rp->ai_addr pour accéder à la structure d'adresse
-			if (rp->ai_family == AF_INET)
+			// Parcourez les résultats pour obtenir les adresses IP
+			struct addrinfo* rp;
+			for (rp = result; rp != NULL; rp = rp->ai_next)
 			{
-				struct sockaddr_in* ipv4_addr = (struct sockaddr_in*)rp->ai_addr;
-				addr = &(ipv4_addr->sin_addr);
-				inet_ntop(rp->ai_family, addr, ip_str, sizeof(ip_str));
-				ft_strlcpy(main->newAddress, ip_str, ft_strlen(ip_str) + 1);
-				inet_pton(AF_INET, main->newAddress, &main->s_address);
-        		printf("Adresse IP trouvée: %s\n", ip_str);
-				freeaddrinfo(result);
-				return 0;
-        	}
+				void* addr;
+				char ip_str[INET_ADDRSTRLEN];
+				// Utilisez rp->ai_addr pour accéder à la structure d'adresse
+				if (rp->ai_family == AF_INET)
+				{
+					struct sockaddr_in* ipv4_addr = (struct sockaddr_in*)rp->ai_addr;
+					addr = &(ipv4_addr->sin_addr);
+					inet_ntop(rp->ai_family, addr, ip_str, sizeof(ip_str));
+					ft_strlcpy(main->newAddress, ip_str, ft_strlen(ip_str) + 1);
+					inet_pton(AF_INET, main->newAddress, &main->s_address);
+					printf("Adresse IP trouvée: %s\n", ip_str);
+					freeaddrinfo(result);
+					return 0;
+				}
+			}
 		}
 		freeaddrinfo(result);
 		fprintf(stderr, "%s: unknown host\n", PROGRAM);
