@@ -9,3 +9,12 @@ void handleCtrlC(int sig)
     }
     return;
 }
+
+void handleAlarm(int sig)
+{
+    if (sig == SIGALRM)
+    {
+        alarm(0);
+    }
+    return;
+}

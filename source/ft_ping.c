@@ -4,9 +4,9 @@ int setData(t_main *main, char **argv)
 {
 	(void)argv;
 	(void)main;
-	struct timeval tv_out;
-    tv_out.tv_sec = RECV_TIMEOUT;
-    tv_out.tv_usec = 0;
+	// struct timeval tv_out;
+    // tv_out.tv_sec = RECV_TIMEOUT;
+    // tv_out.tv_usec = 0;
 
     if ((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0)
     {
@@ -14,11 +14,11 @@ int setData(t_main *main, char **argv)
         return -1;
     }
 
-	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof (tv_out)) < 0) // gere le timeout
-    {
-        perror("setsockopt()");
-        exit(EXIT_FAILURE);
-    }
+	// if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv_out, sizeof (tv_out)) < 0) // gere le timeout
+    // {
+    //     perror("setsockopt()");
+    //     exit(EXIT_FAILURE);
+    // }
 
     return 0;
 }
@@ -33,12 +33,18 @@ int ft_ping(int argc, char **argv)
 	if (setData(&main, argv) == -1)
 		return 1;
 
-	printf("FT_PING %s (%s): %d data bytes\n", main.address, main.newAddress, 56);
+	if (main.verbose)
+		printf("FT_PING %s (%s): %d data bytes, id 0x%04x = %d\n", main.address, main.newAddress, 56, htons(getpid()), getpid());
+	else
+		printf("FT_PING %s (%s): %d data bytes\n", main.address, main.newAddress, 56);
+	
 	while (sockfd)
 	{
 		sendData(&main);
+		// alarm(1);
 		receiveData(&main);
-		usleep(PING_SLEEP); // Changer la valeur
+		if (sockfd)
+			usleep(PING_SLEEP); // Changer la valeur
 	}
 	printf("--- %s ping statistics ---\n", main.newAddress);
     printf("%d packets transmitted, %d packets received, %.f%% packet loss\n", main.packet_t, main.packet_r, ((main.packet_t - main.packet_r)/main.packet_t) * 100.0);

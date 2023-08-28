@@ -25,7 +25,6 @@ int main (int argc, char **argv)
     
     if (ft_ping(argc, argv) == -1)
         return 1;
-    
 
     return 0;
 }

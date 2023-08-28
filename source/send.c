@@ -24,8 +24,6 @@ unsigned short calculate_checksum(unsigned short *addr, int len) {
 int sendData(t_main *main)
 {
 	struct sockaddr_in  dest_addr;
-    pid_t               pid_nb = getpid();
-
 
 	memset(&dest_addr, 0, sizeof(dest_addr));
     dest_addr.sin_family = AF_INET;
@@ -36,8 +34,8 @@ int sendData(t_main *main)
 
     icmp_header->type = ICMP_ECHO;
     icmp_header->code = 0;
-    icmp_header->un.echo.id = htons(pid_nb);
-    icmp_header->un.echo.sequence = main->packet_t++;
+    icmp_header->un.echo.id = htons(getpid());
+    icmp_header->un.echo.sequence = htons(main->packet_t++);
     icmp_header->checksum = calculate_checksum((unsigned short *)icmp_header, sizeof(struct icmphdr));
 
     // struct timeval *timestamp = (struct timeval *)(main->packet + sizeof(struct icmphdr));

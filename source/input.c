@@ -51,7 +51,7 @@ int checkOption(int argc, char **argv, t_main *main)
 	return 0;
 }
 
-int		checkHostAdress(t_main *main)
+int	checkHostAdress(t_main *main)
 {
 	if (inet_pton(AF_INET, main->address, &main->s_address) == 0)
 	{
