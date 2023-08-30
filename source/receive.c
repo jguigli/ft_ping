@@ -2,8 +2,8 @@
 
 int receiveData(t_main *main)
 {
-	char packet[PACKET_SIZE];
-    memset(packet, 0, PACKET_SIZE);
+	char packet[IP_MAXPACKET];
+    memset(packet, 0, IP_MAXPACKET);
 
     struct iovec iov;
     iov.iov_base = packet;
@@ -26,10 +26,13 @@ int receiveData(t_main *main)
 
 	while (sockfd)
 	{
+		memset(packet, 0, IP_MAXPACKET);
 		bytes = recvmsg(sockfd, &msg, 0);
 		// printf("receive message: %ld\n", recvmsg(sockfd, &msg, 0));
-		if (packet[0] == '\0' && bytes == -1)
-			return 0;
+		if (bytes == -1)
+		{
+			return 1;
+		}
 		
 		struct ip *ip_header = (struct ip *)packet;
 		struct icmphdr *icmp_header = (struct icmphdr *)(packet + sizeof(struct ip)); // Skip IP header
@@ -41,7 +44,9 @@ int receiveData(t_main *main)
 		
 		if (icmp_header->type == ICMP_ECHOREPLY && ip_header->ip_src.s_addr == main->s_address.s_addr)
 		{
-			alarm(0);
+			char src[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &ip_header->ip_src, src, INET_ADDRSTRLEN);
+
 			if (main->packet_r == 0)
 			{
 				main->min = main->time;
@@ -51,52 +56,41 @@ int receiveData(t_main *main)
 				main->min = main->time;
 			if (main->max < main->time)
 				main->max = main->time;
-			main->avg += main->time;
+			main->sum += main->time;
+			main->sq_sum += main->time * main->time;
 			main->packet_r++;
-			printf("%d bytes from %s icmp_seq=%d ttl=%d time=%.3f ms\n", PACKET_SIZE, inet_ntoa(ip_header->ip_src), ntohs(icmp_header->un.echo.sequence), ip_header->ip_ttl, main->time);
+			printf("%ld bytes from %s icmp_seq=%d ttl=%d time=%.3f ms\n", bytes - IPHDR_SIZE, src, ntohs(icmp_header->un.echo.sequence), ip_header->ip_ttl, main->time);
 			return 0;
 		}
 		else if (icmp_header->type == ICMP_DEST_UNREACH) 
 		{
-			alarm(0);
-			printf("%d bytes from %s (%s): Destination Host Unreachable\n", 92, main->address, main->newAddress);
+			struct ip *iphdr = (struct ip *)packet;
+			struct icmphdr *icmphdr = (struct icmphdr *)(packet + sizeof(struct ip));
+			char src[INET_ADDRSTRLEN], dst[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &iphdr->ip_src, src, INET_ADDRSTRLEN);
+			inet_ntop(AF_INET, &main->s_address, dst, INET_ADDRSTRLEN);
+
 			if (main->verbose)
 			{
-				char src[INET_ADDRSTRLEN], dst[INET_ADDRSTRLEN];
-				inet_ntop(AF_INET, &ip_header->ip_src, src, INET_ADDRSTRLEN);
-				inet_ntop(AF_INET, &ip_header->ip_dst, dst, INET_ADDRSTRLEN);
+				// getnameinfo();
+				printf("%ld bytes from %s: Destination Host Unreachable\n", bytes - IPHDR_SIZE, src);
 
 				printf("IP Hdr Dump:\n");
 				printf(" 4500 0054 a244 4000 4001 14fb c0a8 0114 c0a8 0105\n"); // AMODIF
 				printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks  	Src     Dst      Data\n");
-				printf(" %i %d %d %04d %d  2 %04d  %d %d %d  %s  %s\n",
-       			ip_header->ip_v, ip_header->ip_hl, ip_header->ip_tos, ip_header->ip_len,
-       			ntohs(ip_header->ip_id), ip_header->ip_off, ip_header->ip_ttl, ip_header->ip_sum, ip_header->ip_p, src, dst);
-				printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%d\n",
-       			icmp_header->type, icmp_header->code, PACKET_SIZE, icmp_header->un.echo.id, ntohs(icmp_header->un.echo.sequence));
+				printf(" %i %d  %d %04d %d  2 %04d  %d %d %d  %s  %s\n",
+       			iphdr->ip_v, iphdr->ip_hl, iphdr->ip_tos, ntohs(iphdr->ip_len),
+       			ntohs(iphdr->ip_id), iphdr->ip_off, iphdr->ip_ttl, iphdr->ip_sum, iphdr->ip_p, src, dst);
+				printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%04d\n",
+       			icmphdr->type, icmphdr->code, PACKET_SIZE, main->pid, main->packet_t);
 			}
+			else
+			{
+				printf("%ld bytes from %s: Destination Host Unreachable\n", bytes - IPHDR_SIZE, src);
+			}
+
 			return 0;
 		}
-		// else
-		// {
-		// 	printf("Received ICMP packet, but not an Echo Reply :\n");
-		// 	// printf("ip_header->ip_hl: %d\n", ip_header->ip_hl);
-		// 	// printf("ip_header->ip_v: %d\n", ip_header->ip_v);
-		// 	// printf("ip_header->ip_tos: %d\n", ip_header->ip_tos);
-		// 	// printf("ip_header->ip_len: %d\n", ip_header->ip_len);
-		// 	// printf("ip_header->ip_id: %d\n", ntohs(ip_header->ip_id));
-		// 	// printf("ip_header->ip_off: %d\n", ip_header->ip_off);
-		// 	// printf("ip_header->ip_ttl: %d\n", ip_header->ip_ttl);
-		// 	// printf("ip_header->ip_p: %d\n", ip_header->ip_p);
-		// 	printf("ip_header->ip_src: %s\n", inet_ntop(ip_header->ip_src));
-		// 	printf("ip_header->ip_dst: %s\n", inet_ntop(ip_header->ip_dst));
-			
-		// 	printf("icmp_header->type: %d\n", icmp_header->type);
-		// 	// printf("icmp_header->code: %d\n", icmp_header->code);
-		// 	// printf("icmp_header->un->echo->id: %d\n", ntohs(icmp_header->un.echo.id));
-		// 	// printf("icmp_header->un->echo->sequence: %d\n", icmp_header->un.echo.sequence);
-		// 	// printf("icmp_header->checksum: %d\n", icmp_header->checksum);
-		// }
 	}
 
 

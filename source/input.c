@@ -77,7 +77,7 @@ int	checkHostAdress(t_main *main)
 					inet_ntop(rp->ai_family, addr, ip_str, sizeof(ip_str));
 					ft_strlcpy(main->newAddress, ip_str, ft_strlen(ip_str) + 1);
 					inet_pton(AF_INET, main->newAddress, &main->s_address);
-					printf("Adresse IP trouvée: %s\n", ip_str);
+					// printf("Adresse IP trouvée: %s\n", ip_str);
 					freeaddrinfo(result);
 					return 0;
 				}

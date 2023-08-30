@@ -5,6 +5,7 @@ SOURCES = $(SOURCES_DIR)main.c \
 			$(SOURCES_DIR)signal.c \
 			$(SOURCES_DIR)send.c \
 			$(SOURCES_DIR)receive.c \
+			$(SOURCES_DIR)utils.c \
 
 BONUS_FILE = \
 

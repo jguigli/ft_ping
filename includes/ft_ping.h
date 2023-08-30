@@ -28,6 +28,8 @@
 
 # define PROGRAM "ft_ping"
 # define PACKET_SIZE 64 // taille paquet IP HDR + ICMP
+# define IPHDR_SIZE 20
+# define ICMPHDR_SIZE 8
 # define RECV_TIMEOUT 1
 # define PING_SLEEP 1000000
 
@@ -40,33 +42,44 @@
 extern int sockfd;
 
 /* Déclaration des structures */
-
+typedef struct s_ping
+{
+	struct icmphdr *icmp;
+	struct ip *ip;
+} t_ping;
 typedef struct s_main
 {
-	char			*address; // nom du host ou adresse
-	char			newAddress[16]; // adresse ip finale
-	struct in_addr 	s_address; // adresse ip apres inet_pton
-	struct in_addr 	my_address; // adresse ip apres inet_pton
-	int				verbose; // option -v
-	char			packet[IP_MAXPACKET]; // paquet d'emvoi
-	int				packet_t; // nonmbre paquet transmis
-	int				packet_r; // nonmbre paquet recu
-	double			min;
-	double			max;
-	double			avg;
-	double			stddev;
-	double			time; // Changer le type temps reception apres envoi
-	struct timeval 	start_time;
-	struct timeval 	end_time;
+	char				*address; // nom du host ou adresse
+	char				*myDns;
+	char				newAddress[16]; // adresse ip finale
+	char				buffersprint[8][1000];
+	struct in_addr 		s_address; // adresse ip apres inet_pton
+	struct sockaddr_in  dest_addr;
+	int					verbose; // option -v
+	char				packet[IP_MAXPACKET]; // paquet d'emvoi
+	int					packet_t; // nonmbre paquet transmis
+	int					packet_r; // nonmbre paquet recu
+	pid_t				pid;
+	double				min;
+	double				max;
+	double				sum;
+	double				sq_sum;
+	double				stddev;
+	double				time; // Changer le type temps reception apres envoi
+	struct timeval 		start_time;
+	struct timeval 		end_time;
 } t_main;
+
 
 /* Prototype des fonctions */
 
 int handleInput(int argc, char **argv, t_main *main);
 void handleCtrlC(int sig);
+void handleAlarm(int sig);
 int ft_ping(int argc, char **argv);
 int sendData(t_main *main);
 int receiveData(t_main *main);
+double custom_sqrt(double x);
 
 
 

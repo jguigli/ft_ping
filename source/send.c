@@ -23,31 +23,38 @@ unsigned short calculate_checksum(unsigned short *addr, int len) {
 
 int sendData(t_main *main)
 {
-	struct sockaddr_in  dest_addr;
+    ft_memset(&main->packet, 0, PACKET_SIZE);
+    // t_ping packet;
+    // struct ip *ip_header = (struct ip *)(main->packet);
 
-	memset(&dest_addr, 0, sizeof(dest_addr));
-    dest_addr.sin_family = AF_INET;
-	dest_addr.sin_addr = main->s_address;
+    // ip_header->ip_v = 4;             // Version IPv4
+    // ip_header->ip_hl = 5;            // Longueur de l'en-tête en mots de 32 bits (5 mots = 20 octets)
+    // ip_header->ip_tos = 0;           // Type of Service
+    // ip_header->ip_len = sizeof(struct ip) + sizeof(struct icmphdr);   // Longueur totale du paquet (entête + données)
+    // ip_header->ip_off = 0;           // Flags et offset de fragment (0 par défaut)
+    // ip_header->ip_ttl = 64;          // Time to Live
+    // ip_header->ip_p = IPPROTO_ICMP;  // Protocole ICMP
+    // ip_header->ip_sum = 0;           // Somme de contrôle (sera calculée automatiquement)
 
-	memset(main->packet, 0, PACKET_SIZE);
-    struct icmphdr *icmp_header = (struct icmphdr *)(main->packet);
+    struct icmphdr *icmp_header = (struct icmphdr *)main->packet;
 
     icmp_header->type = ICMP_ECHO;
     icmp_header->code = 0;
-    icmp_header->un.echo.id = htons(getpid());
+    icmp_header->un.echo.id = htons(main->pid);
     icmp_header->un.echo.sequence = htons(main->packet_t++);
+    icmp_header->checksum = 0;
     icmp_header->checksum = calculate_checksum((unsigned short *)icmp_header, sizeof(struct icmphdr));
 
-    // struct timeval *timestamp = (struct timeval *)(main->packet + sizeof(struct icmphdr));
-    // timestamp->tv_sec = main->start_time.tv_sec;
-    // timestamp->tv_usec = main->start_time.tv_usec;
+    // ip_header->ip_sum = calculate_checksum((unsigned short *)ip_header, ip_header->ip_hl * 4);
 
-	ssize_t bytes_sent = sendto(sockfd, main->packet, PACKET_SIZE, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+
+	ssize_t bytes_sent = sendto(sockfd, &main->packet, PACKET_SIZE, 0, (struct sockaddr *)&main->dest_addr, sizeof(main->dest_addr));
     if (bytes_sent < 0)
     {
         perror("sendto");
         return -1;
     }
+    printf("bytes sent = %ld\n", bytes_sent);
     gettimeofday(&main->start_time, NULL);
 
 	return 0;
