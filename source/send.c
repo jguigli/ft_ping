@@ -36,7 +36,7 @@ int sendData(t_main *main)
     // ip_header->ip_p = IPPROTO_ICMP;  // Protocole ICMP
     // ip_header->ip_sum = 0;           // Somme de contrôle (sera calculée automatiquement)
 
-    struct icmphdr *icmp_header = (struct icmphdr *)main->packet;
+    struct icmphdr *icmp_header = (struct icmphdr *)&main->packet;
 
     icmp_header->type = ICMP_ECHO;
     icmp_header->code = 0;
@@ -54,7 +54,7 @@ int sendData(t_main *main)
         perror("sendto");
         return -1;
     }
-    printf("bytes sent = %ld\n", bytes_sent);
+    // printf("bytes sent = %ld\n", bytes_sent);
     gettimeofday(&main->start_time, NULL);
 
 	return 0;

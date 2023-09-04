@@ -27,7 +27,8 @@
 /* Définition des constantes */
 
 # define PROGRAM "ft_ping"
-# define PACKET_SIZE 64 // taille paquet IP HDR + ICMP
+# define PACKET_SIZE 64 // taille paquet ICMP + payload
+# define PAYLOAD 56
 # define IPHDR_SIZE 20
 # define ICMPHDR_SIZE 8
 # define RECV_TIMEOUT 1
@@ -44,8 +45,8 @@ extern int sockfd;
 /* Déclaration des structures */
 typedef struct s_ping
 {
-	struct icmphdr *icmp;
-	struct ip *ip;
+	struct icmphdr icmp;
+	struct ip ip;
 } t_ping;
 typedef struct s_main
 {
@@ -57,6 +58,7 @@ typedef struct s_main
 	struct sockaddr_in  dest_addr;
 	int					verbose; // option -v
 	char				packet[IP_MAXPACKET]; // paquet d'emvoi
+	// t_ping				packet;
 	int					packet_t; // nonmbre paquet transmis
 	int					packet_r; // nonmbre paquet recu
 	pid_t				pid;
